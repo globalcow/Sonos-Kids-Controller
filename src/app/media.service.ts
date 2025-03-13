@@ -156,13 +156,13 @@ export class MediaService {
         }, {});
 
         // Create temporary object with artists as keys and covers (first media cover) as values
-        const covers = media.sort((a, b) => a.title <= b.title ? -1 : 1).reduce((tempCovers, currentMedia) => {
+        const covers = media.sort((a, b) => currentMedia.category === 'podcast' ? (a.timestamp >= b.timestamp ? -1 : 1) : (a.title <= b.title ? -1 : 1)).reduce((tempCovers, currentMedia) => {
             if (!tempCovers[currentMedia.artist]) { tempCovers[currentMedia.artist] = currentMedia.cover; }
             return tempCovers;
         }, {});
 
         // Create temporary object with artists as keys and first media as values
-        const coverMedia = media.sort((a, b) => a.title <= b.title ? -1 : 1).reduce((tempMedia, currentMedia) => {
+        const coverMedia = media.sort((a, b) => currentMedia.category === 'podcast' ? (a.timestamp >= b.timestamp ? -1 : 1) : (a.title <= b.title ? -1 : 1)).reduce((tempMedia, currentMedia) => {
           if (!tempMedia[currentMedia.artist]) { tempMedia[currentMedia.artist] = currentMedia; }
           return tempMedia;
       }, {});
