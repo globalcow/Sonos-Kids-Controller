@@ -13,6 +13,9 @@
             <ion-segment-button value="music">
                 <ion-icon name="musical-notes-outline"></ion-icon>
             </ion-segment-button>
+            <ion-segment-button value="podcast">
+                <ion-icon name="mic-outline"></ion-icon>
+            </ion-segment-button>
             <ion-segment-button value="playlist">
                 <ion-icon name="document-text-outline"></ion-icon>
             </ion-segment-button>
@@ -29,7 +32,7 @@
 </ion-header>
 
 <ion-content>
-    <div *ngIf="category === 'audiobook' || category === 'music'; then artistBlock else mediaBlock"></div>
+    <div *ngIf="category === 'audiobook' || category === 'music' || category === 'podcast'; then artistBlock else mediaBlock"></div>
 
     <ng-template #artistBlock>
         <ion-slides [options]="slideOptions" scrollbar="true" #artist_slider>
