@@ -111,7 +111,7 @@ export class HomePage implements OnInit {
   }
 
   update() {
-    if (this.category === 'audiobook' || this.category === 'music') {
+    if (this.category === 'audiobook' || this.category === 'music' || this.category === 'podcast') {
       this.mediaService.publishArtists();
     } else {
       this.mediaService.publishMedia();
