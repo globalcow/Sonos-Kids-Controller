@@ -156,13 +156,13 @@ export class MediaService {
         }, {});
 
         // Create temporary object with artists as keys and covers (first media cover) as values
-        const covers = media.sort((a, b) => currentMedia.category === 'podcast' ? (a.timestamp >= b.timestamp ? -1 : 1) : (a.title <= b.title ? -1 : 1)).reduce((tempCovers, currentMedia) => {
+        const covers = media.sort((a, b) => a.category === 'podcast' ? (a.timestamp >= b.timestamp ? -1 : 1) : (a.title <= b.title ? -1 : 1)).reduce((tempCovers, currentMedia) => {
             if (!tempCovers[currentMedia.artist]) { tempCovers[currentMedia.artist] = currentMedia.cover; }
             return tempCovers;
         }, {});
 
         // Create temporary object with artists as keys and first media as values
-        const coverMedia = media.sort((a, b) => currentMedia.category === 'podcast' ? (a.timestamp >= b.timestamp ? -1 : 1) : (a.title <= b.title ? -1 : 1)).reduce((tempMedia, currentMedia) => {
+        const coverMedia = media.sort((a, b) => a.category === 'podcast' ? (a.timestamp >= b.timestamp ? -1 : 1) : (a.title <= b.title ? -1 : 1)).reduce((tempMedia, currentMedia) => {
           if (!tempMedia[currentMedia.artist]) { tempMedia[currentMedia.artist] = currentMedia; }
           return tempMedia;
       }, {});
@@ -189,7 +189,7 @@ export class MediaService {
       map((media: Media[]) => {
         return media
           .filter(currentMedia => currentMedia.artist === artist.name)
-          .sort((a, b) => a.title.localeCompare(b.title, undefined, {
+          .sort((a, b) => a.category === 'podcast' ? (a.timestamp >= b.timestamp ? -1 : 1) : a.title.localeCompare(b.title, undefined, {
             numeric: true,
             sensitivity: 'base'
           }));
@@ -202,7 +202,7 @@ export class MediaService {
     return this.mediaSubject.pipe(
       map((media: Media[]) => {
         return media
-          .sort((a, b) => a.title.localeCompare(b.title, undefined, {
+          .sort((a, b) => a.category === 'podcast' ? (a.timestamp >= b.timestamp ? -1 : 1) : a.title.localeCompare(b.title, undefined, {
             numeric: true,
             sensitivity: 'base'
           }));
