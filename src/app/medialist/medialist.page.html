@@ -21,6 +21,9 @@
                                 <ion-card-title class="ion-text-nowrap truncate-text">{{currentMedia.title}}</ion-card-title>
                             </ion-card-header>
                         </ion-card>
+                        <ion-button *ngIf="hasBookmark(currentMedia)" (click)="bookmarkClicked(currentMedia)" shape="round" color="light" class="bookmark">
+                                <ion-icon slot="icon-only" name="bookmark-outline"></ion-icon>
+                        </ion-button>
                     </ion-col>
                 </ion-row>
             </ion-grid>

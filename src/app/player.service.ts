@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Media } from './media';
-import { SonosApiConfig } from './sonos-api';
+import { SonosApiConfig, SonosApiState } from './sonos-api';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 import { publishReplay, refCount } from 'rxjs/operators';
@@ -17,6 +17,15 @@ export enum PlayerCmds {
   CLEARQUEUE = 'clearqueue'
 }
 
+export interface SaveState {
+  id: string;
+  media: Media;
+  trackNo: number;
+  elapsedTime: number;
+  tstamp: number;
+  complete: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -25,6 +34,21 @@ export class PlayerService {
   private config: Observable<SonosApiConfig> = null;
 
   constructor(private http: HttpClient) {}
+
+  getSavedPlayState(media: Media): SaveState | undefined {
+    const saveStateString = window.localStorage.getItem('SavedPlayState');
+    if (!saveStateString) return;
+    const saveState: Record<string, SaveState> = JSON.parse(saveStateString);
+    return saveState[JSON.stringify([media.id,media.artist,media.title])];
+  }
+
+  setSavedPlayState(state: SaveState) {
+    let saveState: Record<string, SaveState> = {};
+    let saveStateString = window.localStorage.getItem('SavedPlayState');
+    if (saveStateString) saveState = JSON.parse(saveStateString);
+    saveState[state.id] = state;
+    window.localStorage.setItem('SavedPlayState', JSON.stringify(saveState));
+  }
 
   getConfig() {
     // Observable with caching:
@@ -42,15 +66,15 @@ export class PlayerService {
     return this.config;
   }
 
-  getState() {
-    this.sendRequest('state');
+  getState(onComplete?: (state: SonosApiState) => void) {
+    this.sendRequest('state', onComplete);
   }
 
   sendCmd(cmd: PlayerCmds) {
     this.sendRequest(cmd);
   }
 
-  playMedia(media: Media) {
+  playMedia(media: Media, onComplete?: (data: any) => void) {
     let url: string;
 
     switch (media.type) {
@@ -99,7 +123,7 @@ export class PlayerService {
       }
     }
 
-    this.sendRequest(url);
+    this.sendRequest(url, onComplete);
   }
 
   say(text: string) {
@@ -114,10 +138,46 @@ export class PlayerService {
     });
   }
 
-  private sendRequest(url: string) {
+  sendTrackseekCmd(trackNumber: number, onComplete?: (data: any) => void) {
+    this.sendRequest('trackseek/' + trackNumber, onComplete);
+  }
+
+  sendTimeseekCmd(seconds: number, onComplete?: (data: any) => void) {
+    this.sendRequest('timeseek/' + seconds, onComplete);
+  }
+
+  savePlayState(media: Media) {
+
+    this.setSavedPlayState({
+      id: JSON.stringify([media.id,media.artist,media.title]),
+      media: media,
+      trackNo: 1,
+      elapsedTime: 0,
+      tstamp: Date.now(),
+      complete: false,
+    });
+
+    this.getState(state => {
+      this.setSavedPlayState({
+        id: JSON.stringify([media.id,media.artist,media.title]),
+        media: media,
+        trackNo: state.trackNo,
+        elapsedTime: state.elapsedTime,
+        tstamp: Date.now(),
+        complete: state.nextTrack.duration === 0 && state.currentTrack.duration - state.elapsedTime < 60,
+      });
+    });
+  }
+
+  loadPlayState(media: Media) {
+    const state = this.getSavedPlayState(media);
+    this.playMedia(state.media, () => this.sendTrackseekCmd(state.trackNo, () => this.sendTimeseekCmd(state.elapsedTime)));
+  }
+
+  private sendRequest(url: string, onComplete: (data: any) => void = () => undefined) {
     this.getConfig().subscribe(config => {
       const baseUrl = 'http://' + config.server + ':' + config.port + '/' + config.rooms[0] + '/';
-      this.http.get(baseUrl + url).subscribe();
+      this.http.get(baseUrl + url).subscribe(onComplete);
     });
   }
 }

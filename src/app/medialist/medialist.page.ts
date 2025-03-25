@@ -86,6 +86,28 @@ export class MedialistPage implements OnInit {
     });
   }
 
+  hasBookmark(media: Media) {
+    const state = this.playerService.getSavedPlayState(media);
+
+    if (state && media.category === 'audiobook' && !state.complete) {
+      const timeDiff = Date.now() - state.tstamp;
+
+      if (timeDiff < 604800000) { // 1 week
+        return true;
+      }
+    }
+  }
+
+  bookmarkClicked(clickedMedia: Media) {
+    const navigationExtras: NavigationExtras = {
+      state: {
+        bookmark: true,
+        media: clickedMedia
+      }
+    };
+    this.router.navigate(['/player'], navigationExtras);
+  }
+
   slideDidChange() {
     // console{}.log('Slide did change');
   }
@@ -97,4 +119,5 @@ export class MedialistPage implements OnInit {
   slideNext() {
     this.slider.slideNext();
   }
+
 }

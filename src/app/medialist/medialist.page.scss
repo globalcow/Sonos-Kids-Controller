@@ -19,6 +19,14 @@ ion-row.media-card {
     padding-bottom: 42px;
 }
 
+ion-button.bookmark {
+    width: 75px;
+    height: 75px;
+    position: relative;
+    top: -280px;
+    right: -75px;
+}
+
 .truncate-text {
     overflow: hidden;
     text-overflow: ellipsis;

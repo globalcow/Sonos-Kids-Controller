@@ -13,6 +13,7 @@ import { Media } from '../media';
 export class PlayerPage implements OnInit {
 
   media: Media;
+  bookmark = false;
   cover = '';
   playing = true;
 
@@ -25,6 +26,10 @@ export class PlayerPage implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (this.router.getCurrentNavigation().extras.state) {
         this.media = this.router.getCurrentNavigation().extras.state.media;
+        
+	if(this.router.getCurrentNavigation().extras.state.bookmark) {
+	  this.bookmark = true;
+        }
       }
     });
   }
@@ -40,12 +45,17 @@ export class PlayerPage implements OnInit {
       this.playerService.sendCmd(PlayerCmds.CLEARQUEUE);
 
       window.setTimeout(() => {
-        this.playerService.playMedia(this.media);
+        if (this.bookmark) {
+          this.playerService.loadPlayState(this.media);
+        } else {
+          this.playerService.playMedia(this.media);
+        }
       }, 1000);
     }
   }
 
   ionViewWillLeave() {
+    this.playerService.savePlayState(this.media);
     this.playerService.sendCmd(PlayerCmds.PAUSE);
   }
 
@@ -68,6 +78,7 @@ export class PlayerPage implements OnInit {
   playPause() {
     if (this.playing) {
       this.playing = false;
+      this.playerService.savePlayState(this.media);
       this.playerService.sendCmd(PlayerCmds.PAUSE);
     } else {
       this.playing = true;
