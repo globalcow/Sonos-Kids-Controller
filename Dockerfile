@@ -13,7 +13,7 @@ COPY package.json /sonos-kids-controller/package.json
 RUN npm install 
 
 ## Copy source code
-COPY * /sonos-kids-controller
+COPY ./* /sonos-kids-controller/
 
 ## Build Sonos Kids Controller
 RUN ionic build --prod
@@ -30,7 +30,7 @@ COPY package.json /sonos-kids-controller/package.json
 RUN npm install --production
 
 ## Copy source code
-COPY * /sonos-kids-controller
+COPY ./* /sonos-kids-controller/
 COPY --from=build /sonos-kids-controller/www/ /sonos-kids-controller/www/
 
 ## Config directory should be stored in a volume
