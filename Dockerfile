@@ -9,11 +9,11 @@ WORKDIR /sonos-kids-controller
 RUN npm install -g @ionic/cli
 
 ## Install dependencies
-COPY src/package.json /sonos-kids-controller/package.json
+COPY package.json /sonos-kids-controller/package.json
 RUN npm install 
 
 ## Copy source code
-COPY src /sonos-kids-controller
+COPY * /sonos-kids-controller
 
 ## Build Sonos Kids Controller
 RUN ionic build --prod
@@ -26,11 +26,11 @@ FROM node:16-alpine
 WORKDIR /sonos-kids-controller
 
 ## Install dependencies
-COPY src/package.json /sonos-kids-controller/package.json
+COPY package.json /sonos-kids-controller/package.json
 RUN npm install --production
 
 ## Copy source code
-COPY src /sonos-kids-controller
+COPY * /sonos-kids-controller
 COPY --from=build /sonos-kids-controller/www/ /sonos-kids-controller/www/
 
 ## Config directory should be stored in a volume
